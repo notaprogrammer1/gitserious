@@ -1,2 +1,1 @@
-#A tutorial game gone wrong
-What happened.
+#A 20 line programming tutorial that went terribly, terribly wrong.
