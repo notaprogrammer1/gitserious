@@ -1,6 +1,7 @@
 #comment added, to be deleted
 #second comment added, which is to be deleted
 
+import asyncio
 import datetime
 import random
 import threading
@@ -549,34 +550,36 @@ def attackSkewer(target):
 
 
 
-def attackStrike(target):
+async def attackStrike(target):
     for i in locations[players[id].room]["enemies"]:
         if target in str(i.vname).lower():
-            # players[id].incap = True
+            players[id].incap = True
             if not i.dead:
                 mud.send_message(id, "You attack "+ i.vname + '! ' + str(i.health))
                 i.health -= players[id].wielded[0].damage
                 deadTest()
             if players[id].balance - players[id].wielded[0].speed < 0:
-                time.sleep(0)
-                # players[id].incap = False
+                await asyncio.sleep(0)
+                players[id].incap = False
+                mud.send_message(id, "You regain your balance.")
             else:
-                time.sleep(players[id].balance - players[id].wielded[0].speed)
-                # players[id].incap = False
+                await asyncio.sleep(players[id].balance - players[id].wielded[0].speed)
+                players[id].incap = False
+                mud.send_message(id, "You regain your balance.")
             break
     for i in locations[players[id].room]['players']:
         if target in str(i.vname).lower():
             mud.send_message(id, "You attack "+i.vname+'!')
             i.health -= players[id].wielded[0].damage
             if players[id].balance - players[id].wielded[0].speed < 0:
-                time.sleep(0)
+                await asyncio.sleep(0)
             else:
-                time.sleep(players[id].balance - players[id].wielded[0].speed)
+                await asyncio.sleep(players[id].balance - players[id].wielded[0].speed)
             break
 
 
 
-def npcattack():
+async def npcattack():
     global players
     for npc in locations[players[id].room]["enemies"]:
         if npc in locations[players[id].room]["enemies"]:
@@ -592,7 +595,7 @@ def npcattack():
                             else:
                                 players[id].health -= i.damage
 
-                            time.sleep(npc.speed)
+                            await asyncio.sleep(npc.speed)
 
 def rest():
     players[id].incap = True
@@ -743,6 +746,15 @@ def whatsHere():
     if availableItems != []:
         mud.send_message(id, "There are items here: " + ', '.join(item.vname for item in availableItems))
 
+#asyncstart
+def start_loop(loop):
+    asyncio.set_event_loop(loop)
+    loop.run_forever()
+
+new_loop = asyncio.new_event_loop()
+t = threading.Thread(target=start_loop, args=(new_loop,))
+t.start()
+#asyncend
 
 #threads
 
@@ -1153,19 +1165,8 @@ while True:
                         for i in locations[players[id].room]["enemies"]:
                             if str(target).lower() in str(i.vname).lower():
                                 i.hostile = True
-                                if i.hostile and not n.is_alive():
-                                    try:
-                                        n.start()
-                                    except RuntimeError: #occurs if thread is dead
-                                        n = threading.Thread(target=npcattack) #create new instance if thread is dead
-                                        n.start() #start thread
-                        if not p.is_alive():
-                            try:
-                                p = threading.Thread(target=attackStrike(target))
-                                p.start()
-                            except RuntimeError: #occurs if thread is dead
-                                p = threading.Thread(target=attackStrike(target)) #create new instance if thread is dead
-                                p.start()
+                                asyncio.run_coroutine_threadsafe(npcattack(), new_loop)
+                                asyncio.run_coroutine_threadsafe(attackStrike(target),new_loop)
                     else:
                         mud.send_message(id, "You're not wielding a weapon!")
             except RuntimeError as e:
