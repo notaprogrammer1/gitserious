@@ -1,6 +1,7 @@
 #comment added, to be deleted
 #second comment added, which is to be deleted
 
+import itertools
 import asyncio
 import datetime
 import random
@@ -444,7 +445,9 @@ locations['#21']['interact'].append(helpman)
 locations['#35']['interact'].append(shop1)
 locations['#47']['interact'].append(shop2)
 locations['#70']['items'].append(smallpurse)
-# locations['#8']['enemies'].append(NPC('\x1b[2;31;48m' + 'A young rat' + '\x1b[0m',25,3,'\x1b[2;31;48m' + 'A hissing juvenile rat' + '\x1b[0m',20,False,False,3,[rattail],False,random.randint(0,9000),''))
+locations['#8']['enemies'].append(NPC('\x1b[2;31;48m' + 'A young rat' + '\x1b[0m',25,3,'\x1b[2;31;48m' + 'A hissing juvenile rat' + '\x1b[0m',20,False,False,3,[rattail],False,random.randint(0,9000),''))
+locations['#8']['enemies'].append(NPC('\x1b[2;31;48m' + 'A young rat' + '\x1b[0m',25,3,'\x1b[2;31;48m' + 'A hissing juvenile rat' + '\x1b[0m',20,False,False,3,[rattail],False,random.randint(0,9000),''))
+
 # locations['#13']['enemies'].append(NPC('\x1b[2;31;48m' + 'A young rat' + '\x1b[0m',25,3,'\x1b[2;31;48m' + 'A hissing juvenile rat' + '\x1b[0m',20,False,False,3,[rattail],False,random.randint(0,9000),''))
 
 locations['#7']['enemies'].append(NPC('\x1b[2;31;48m' + 'A huge cave troll' + '\x1b[0m',24,15,'A huge cave troll',120,True,False,3,[pearl],False,random.randint(0,9000),''))
@@ -461,6 +464,7 @@ locations['#6']['enemies'].append(trollking)
 sprats = ['#36','#60','#56','#34','#33','#32','#31','#43','#44','#45','#46','#53','#54','#55','#51','#52','#68','#67','#66','#65','#64','#63','#62','#50']
 for i in sprats:
     locations[i]['spawn'].append('rats')
+
 
 #functions
 
@@ -494,22 +498,12 @@ def deadTest():
                         for j in enemy.loot:
                             locations[i]['items'].append(j)
                             mud.send_message(id, enemy.vname + ' drops ' + j.vname)
+                            mud.send_message(id, playersprompt)
                         locations[i]['enemies'].remove(enemy)
                         players[id].currentExp += enemy.xp
-                        if enemy.status != '':
-                            if enemy.status == 'skewer':
-                                mud.send_message(id, enemy.vname + ' bleeds to death from their wounds.')
-                            if enemy.status == 'pyroblast':
-                                mud.send_message(id, enemy.vname + " is incinerated, leaving behind only ash.")
-                            if enemy.status == 'fireball':
-                                mud.send_message(id, "You burn " +  enemy.vname + " to a crisp.")
-                            if enemy.status == 'iceshard':
-                                mud.send_message(id, enemy.vname + " falls to the ground with glistening ice sticking out of its wounds.")
-                            if enemy.status == "blizzard":
-                                mud.send_message(id, enemy.vname +  " turns to solid ice, and falls to the ground with a thud.")
+                        mud.send_message(id, "You've slain "+enemy.vname)
+                        mud.send_message(id, playersprompt)
 
-                        else:
-                            mud.send_message(id, "You've slain "+enemy.vname)
     for i in range(0,1):
         x = threading.Thread(target=subwait)
 
@@ -520,33 +514,119 @@ def deadTest():
             x.start()
 
 
-def attackSkewer(target):
 
-    def subWait(): #Needed, if we don't have a sub function with the time.sleep() function inside, it will loop continuosly, not giving the user a prompt.
-        while not i.dead:
-            mud.send_message(id, i.vname+" bleeds profusely.")
-            time.sleep(5)
-            i.health -= 5
-            deadTest()
 
-    x = threading.Thread(target=subWait)
 
-    for i in locations[players[id].room]["enemies"]:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# async def attackSmack(target):
+# #if it's a monster
+#     for i in locations[players[id].room]["enemies"]:
+#         if target in str(i.vname).lower():
+#             players[id].incap = True
+#             if not i.dead:
+#                 mud.send_message(id, "You smack "+ i.vname + ' with your hand! ' + str(i.health))
+#                 i.health -= 10
+#                 # go through every player in the game
+#                 for pid, pl in players.items():
+#                     # if they're in the same room as the player
+#                     if players[pid].room == players[id].room:
+#                         if pid != id:
+#                             # send them a message telling them the player attacked something
+#                             mud.send_message(pid, '{} smacks "{}"'.format(
+#                                 players[id].vname, i.vname))
+#                 deadTest()
+#                 await asyncio.sleep(2)
+#                 players[id].incap = False
+#                 mud.send_message(id, "You regain your balance.")
+#                 mud.send_message(id, playersprompt)
+#         break
+# #if it's a player
+#     for i in locations[players[id].room]['players']:
+#         if str(target).lower() in str(i.vname).lower():
+#             players[id].incap = True
+#             mud.send_message(id, "You smack " + i.vname + '!')
+#             i.health -= 10
+# #need to add a message for other players to see if someone smacked someone
+# #somewhere in here
+# #plz
+#             for p in players:
+#                 if p == i.id:
+#                     mud.send_message(p, "\r"+str(players[id].vname)+" just smacked you, dealing 10 damage!\n\r"+
+#                                      '\x1b[6;30;42m' + str(players[p].health) + '/' + str(
+#                         players[p].maxHealth) + ">" + '\x1b[0m')
+#             deadTest()
+#             await asyncio.sleep(2)
+#             players[id].incap = False
+#             mud.send_message(id, "You regain your balance.")
+#             mud.send_message(id, playersprompt)
+
+
+
+async def attackSmack(target):
+    attackables = [locations[players[id].room]["enemies"], locations[players[id].room]['players'] ]
+    for i in itertools.chain(*attackables):
         if target in str(i.vname).lower():
-            if players[id].wielded != []:
-                if not i.dead:
-                    mud.send_message(id, "You shove your "+str(players[id].wielded[0].vname)+" deep into the gut of "+i.vname)
-                    i.status = 'skewer'
-                    #print(i.vname,"begins to bleed from his wounds.")
-                    i.loot.append(players[id].wielded[0])
-                    players[id].wielded.remove(players[id].wielded[0])
-                    try:
-                        x.start()
-                    except RuntimeError:
-                        x = threading.Thread(target=subWait)
-                        x.start()
-            else:
-                mud.send_message(id, "You need to wield a weapon first.")
+            players[id].incap = True
+            if not i.dead:
+                mud.send_message(id, "You smack "+ i.vname + ' with your hand! ' + str(i.health))
+                i.health -= 10
+                deadTest()
+                for p in players:
+                    if p == i.id:
+                        mud.send_message(p,
+                                         "\r" + str(players[id].vname) + " just smacked you, dealing 10 damage!\n\r" +
+                                         '\x1b[6;30;42m' + str(players[p].health) + '/' + str(
+                                             players[p].maxHealth) + ">" + '\x1b[0m')
+                    if players[p].room == players[id].room:
+                        if p != id and p != i.id:
+                            mud.send_message(p, '{} smacks {} with their hand.'.format(players[id].vname, i.vname))
+                await asyncio.sleep(2)
+                players[id].incap = False
+                mud.send_message(id, "You regain your balance.")
+                mud.send_message(id, playersprompt)
+            break
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -562,11 +642,12 @@ async def attackStrike(target):
                 await asyncio.sleep(0)
                 players[id].incap = False
                 mud.send_message(id, "You regain your balance.")
+                break
             else:
                 await asyncio.sleep(players[id].balance - players[id].wielded[0].speed)
                 players[id].incap = False
                 mud.send_message(id, "You regain your balance.")
-            break
+                break
     for i in locations[players[id].room]['players']:
         if target in str(i.vname).lower():
             mud.send_message(id, "You attack "+i.vname+'!')
@@ -597,136 +678,8 @@ async def npcattack():
 
                             await asyncio.sleep(npc.speed)
 
-def rest():
-    players[id].incap = True
-    mud.send_message(id, "You sit down to rest.")
-    while players[id].health < players[id].maxHealth:
-        players[id].health += 5
-        # if rhealth < playerHealth:
-        #     print("You've been awoken out of your trance.")
-        #     incap = False
-        #     break
-        if players[id].health > players[id].maxHealth:
-            players[id].health = players[id].maxHealth
-        mud.send_message(id, str(players[id].health))
-        time.sleep(3)
-    mud.send_message(id, "You've fully recovered.>")
-    players[id].incap = False
-
-def levelUp():
-    mud.send_message(id,
-        '\x1b[7;36;40m' + "Your experiences in this world make you stronger. You've gained an experience point" + '\x1b[0m')
-    mud.send_message(id,
-        '\x1b[7;36;40m' + "To level up, type Level class, where class is your class of choice. For a list of classes type 'Help Class.'" + '\x1b[0m')
-    players[id].levelNext = players[id].levelNext * 1.8
-    players[id].maxHealth += 5
-    players[id].health = players[id].maxHealth
-    players[id].playerLevel += 1
-    players[id].currentExp = 0
-    players[id].skillPoints += 1
-
-def attackBerserk():
-    players[id].balance -= 1
-    time.sleep(7)
-    players[id].balance += 1
-    mud.send_message(id, "You calm down from your rage.")
-
-def attackShieldbash(target):
-    def subWait():
-        i.incap = True
-        time.sleep(7)
-        i.incap = False
-        if not i.dead:
-            mud.send_message(id, i.vname + ' recovers.')
-
-    x = threading.Thread(target=subWait)
-    for i in locations[players[id].room]["enemies"]:
-        if target in str(i.vname).lower():
-            if not i.dead:
-                mud.send_message(id, "You bash your shield into " +  i.vname + ", stunning it")
-                try:
-                    x.start()
-                except RuntimeError:
-                    x = threading.Thread(target=subWait)
-                    x.start()
-                i.hostile = True
-                i.health -= 3
-            deadTest()
-            time.sleep(players[id].balance - players[id].wielded[0].speed)
-            break
 
 
-
-def attackFireball(target):
-    for i in locations[players[id].room]["enemies"]:
-        if target in str(i.vname).lower():
-            if not i.dead:
-                mud.send_message(id, "You cast a fireball at "+ i.vname)
-                i.status = 'fireball'
-                i.health -= 4
-                deadTest()
-                time.sleep(players[id].balance)
-                mud.send_message(id, "You've regained your mental balance.")
-
-def attackIceshard(target):
-    def subWait():
-        i.status = 'iceshard'
-        i.incap = True
-        time.sleep(3)
-        i.incap = False
-        if not i.dead:
-            mud.send_message(id, i.vname+' recovers from the ice shards slowing effect.')
-
-    x = threading.Thread(target=subWait)
-    for i in locations[players[id].room]["enemies"]:
-        if target in str(i.vname).lower():
-            if not i.dead:
-                mud.send_message(id, "You conjure up and send a shard of razor sharp ice at" + i.vname)
-                i.health -= 6
-                i.status = 'iceshard'
-                deadTest()
-                try:
-                    x.start()
-                except RuntimeError:
-                    x = threading.Thread(target=subWait)
-                    x.start()
-                time.sleep(players[id].balance)
-                mud.send_message(id, "You've regained your mental balance.")
-        break
-
-def attackBlizzard():
-    x = 1
-    while x < 6:
-        deadTest()
-        x += 1
-        for i in locations[players[id].room]["enemies"]:
-            i.health -= 2
-            i.status = 'blizzard'
-        mud.send_message(id, "Your blizzard cuts away at your enemies, sapping them of their strength.")
-        time.sleep(2)
-        deadTest()
-
-def attackFireblast():
-    mud.send_message(id, "You conjure a lava orb above the location.")
-    time.sleep(4)
-    mud.send_message(id, "Your fireblast explodes!")
-    for ijm in locations[players[id].room]["enemies"]:
-        ijm.hostile = True
-        ijm.health -= 6
-        deadTest()
-
-def attackPyroblast(target):
-    for i in locations[players[id].room]["enemies"]:
-        if target in str(i.vname).lower():
-            if not i.dead:
-                mud.send_message(id, "You charge a huge pyroblast pointed at "+ i.vname)
-                time.sleep(players[id].balance + 1)
-                mud.send_message(id, "You unleash your pyroblast!")
-                i.health -= 10
-                i.hostile = True
-                i.status = 'pyroblast'
-                deadTest()
-            break
 
 def whatsHere():
     enemiesHere = locations[players[id].room]["enemies"]
@@ -761,18 +714,8 @@ t.start()
 p = threading.Thread(target=attackStrike)
 n = threading.Thread(target=npcattack)
 dead = threading.Thread(target=deadTest)
-r = threading.Thread(target=rest)
-fs = threading.Thread(target=attackFireblast)
-bliz = threading.Thread(target=attackBlizzard)
-ice = threading.Thread(target=attackIceshard)
-sb = threading.Thread(target=attackShieldbash)
-s = threading.Thread(target=attackSkewer)
-f = threading.Thread(target=attackFireball)
-py = threading.Thread(target=attackPyroblast)
 
 
-knightSkills = ['Shields', 'Shieldbash', 'Skewer', 'Switchgrip', 'Berserk']
-mageSkills = ['Fireball','Iceshard', 'Blizzard','Fireblast','Pyroblast']
 
 # stores the players in the game
 
@@ -819,35 +762,35 @@ while True:
         if id not in players:
             continue
 
-
-        if not players[id].playerLevel == 0:  # Experience
-            if players[id].currentExp >= players[id].levelNext:  # Experience check
-                levelUp()  # Experience
-
-            if players[id].skillPoints > 0:
-                mud.send_message(id, "You have skillpoints available to spend. Type 'help level' to learn more.")
-
-
         # if the player hasn't given their name yet, use this first command as
         # their name
         if players[id].vname is '':
-            players[id].vname = command
+            players[id].vname = command.title()
             # go through all the players in the game
             for pid, pl in players.items():
                 # send each player a message to tell them about the new player
                 mud.send_message(pid, "{} has entered the game".format(
                     players[id].vname))
             # send the new player a welcome message
-            # send the new player a welcome message
             mud.send_message(id, "Your travels bring you to a forest. You mark the setting sun, and make moves to set up"
                                  " camp when you spot dancing lights in the forest to the south. Could they be lights of"
                                  " civilization? \n\rWelcome, {}. \n\r".format(
                                                            players[id].vname)
                              + " ")
+######################################################################
+##############Changable game loop###################################
+######################################################################
+            playersprompt = '\x1b[6;30;42m' + str(players[id].health) + '/' + str(
+                players[id].maxHealth) + ">" + '\x1b[0m'
             availableExits = ", ".join(locations[players[id].room]["exits"].keys())
             # send the new player the description of their current room
             mud.send_message(id, locations[players[id].room]['name'])
             mud.send_message(id, availableExits)
+            locations[players[id].room]['players'].append(players[id])
+
+
+
+
         for i in locations:
             for enemies in locations[i]["enemies"]:
                 if enemies.hostile and not n.is_alive():
@@ -862,11 +805,7 @@ while True:
         if len(players[id].recur) > 3:  # keeps recur list from growing too big
             del players[id].recur[0]
 #checking for buffs
-        if players[id].switched == True:
-            players[id].balance = 0
-            players[id].switched = False
-        else:
-            players[id].balance = 3
+        players[id].balance = 3
 #Movement
         if command.upper() in locations[players[id].room]["exits"]:
 #this is for the arrival/departure piece, it stores the direction and opposite direction for arriving/leaving
@@ -942,61 +881,9 @@ while True:
             mud.send_message(id, "You can't go that way.")
 
 #Level
-        if command == 'level':
-            try:
-                category = params
-                if players[id].skillPoints >0:
-                    if category == 'knight':
-                        players[id].skillPoints -= 1
-                        players[id].knight += 1
-                        mud.send_message(id, "Your expertise with blades and shields grows.")
-                        if players[id].knight == 1:
-                            mud.send_message(id, "You've gained the ability to wield shields.")
-                        if players[id].knight ==2:
-                            mud.send_message(id, "You've gained a new ability: 'Shieldbash': \n\rBash your target with your shield, stunning him.\n\rShieldbash $target")
-                        if players[id].knight == 3:
-                            mud.send_message(id,
-                                             "You've learned a new ability: 'Skewer': \n\rImpale your target, leaving your weapon in them while they bleed.\n\rSkewer $target")
-                        if players[id].knight == 4:
-                            mud.send_message(id,
-                                             "You've learned a new ability: 'Switchgrip'\n\rChange grips on your weapon, allowing you a much quicker successive strike.")
-                        if players[id].knight == 5:
-                            mud.send_message(id,
-                                             "You've learned a new ability: 'Berserk'\n\rChannel your rage, reducing time between attacks.")
 
-                    if category == 'mage':
-                        players[id].skillPoints -= 1
-                        players[id].mage += 1
-                        mud.send_message(id, "Your ability to harness the elements grows.")
-                        if players[id].mage ==1:
-                            mud.send_message(id,
-                                             "You've learned a new spell: 'Fireball': \n\rHurl a ball of fire at your enemy.\n\rCast Fireball $target")
-                        if players[id].mage == 2:
-                            mud.send_message(id,
-                                             "You've learned a new spell: 'Iceshard': \n\rConjure a spear of ice, and send it flying towards your foes.\n\rCast Iceshard $target")
-                        if players[id].mage == 3:
-                            mud.send_message(id,
-                                             "You've learned a new spell: 'Blizzard': \n\rYour abilities with the elements all you to control the weather itself. Summon a \n\rblizzard, hurting every enemy in the location.\n\rCast Blizzard")
-                        if players[id].mage == 4:
-                            mud.send_message(id,
-                                             "You've learned a new spell: 'Fireblast': \n\rSummon a ball of lava, exploding after a short time causing massive damage to all enemies.\n\rCast Fireblast")
-                        if players[id].mage == 5:
-                            mud.send_message(id,
-                                             "You've learned a new spell: 'Pyroblast': \n\rAfter casting for a short time, cast a huge ball of fire to an enemy,\n\rdoing massive damage.\n\rCast Pyroblast $target")
-                    # else:
-                    #     mud.send_message(id, "You don't have any skillpoints available.")
-            except:
-                mud.send_message(id, "Level what?")
 #Skills
 
-        if command == 'skills':
-            mud.send_message(id, "Your current level of experience is: "+str(players[id].playerLevel))
-            if players[id].knight > 0:
-                mud.send_message(id, 'Knight level '+ str(players[id].knight))
-                mud.send_message(id, str(knightSkills[:int(players[id].knight)]))
-            if players[id].mage > 0:
-                mud.send_message(id, 'Mage level ' + str(players[id].mage))
-                mud.send_message(id, str(mageSkills[:int(players[id].mage)]))
 #recur
         if command == '':
             try:
@@ -1007,16 +894,6 @@ while True:
                 print("problem Recur!!!")
                 print(e)
 #Greet
-        if command == 'greet':
-            target = params
-            for i in locations[players[id].room]['interact']:
-                if target in i.vname:
-                    if i.speech:
-                        for pid, pl in players.items():
-                            if players[pid]["room"] == players[id].room:
-                                for j in i.speech:
-                                    mud.send_message(pid, j)
-
 
 #Get
         if command == "get":
@@ -1024,11 +901,11 @@ while True:
             for i in locations[players[id].room]["items"]:
                 if target in i.vname:
                     players[id].inv.append(i)
-                    picked = "You pick up",i.vname
-                    mud.send_message(id, "You pick up "+i.vname)
+                    # picked = "You pick up",i.vname
+                    mud.send_message(id, "You pick up "+i.vname+".")
                     locations[players[id].room]["items"].remove(i)
-
-# Drop
+                    break
+#Drop
         if command == "drop":
             try:
                 target = params
@@ -1040,66 +917,10 @@ while True:
             except:
                 mud.send_message(id, "Drop what?")
 #Shop
-        if command == "shop":
-            templist = []
-            for i in locations[players[id].room]['interact']:
-                if 'shop' in i.vname:
-                    mud.send_message(id, str(i.vname) + ': ')
-                    mud.send_message(id, '#' * 40)
-                    for j in i.inventory[0]:
-                        templist.append(j.vname)
-                    for x in i.inventory:
-                        for y in x.values():
-                            templist.append(y)
-                    items = templist[:len(templist) // 2]
-                    prices = templist[len(templist) // 2:]
-
-                    for i in range(0, len(items)):
-                        mud.send_message(id, str(items[i])+ ' ' + str(prices[i]))
-                mud.send_message(id, '#' * 40)
-                mud.send_message(id, 'Your gold: '+ str(players[id].gold))
-                mud.send_message(id, "#" * 40)
-
-        if command == "rest":
-            r = threading.Thread(target=rest)
-            r.start()
 
 #buy
-        if command == 'buy':
-            try:
-                templist = []
-                target = params
-                for i in locations[players[id].room]['interact']:
-                    if 'shop' in i.vname:
-                        for j in i.inventory:
-                            for m in j.keys():
-                                if target in m.vname.lower():
-                                    if players[id].gold >= int(j[m]):
-                                        mud.send_message(id, "You purchase a " +  m.vname + " and slip it into your pack.")
-                                        players[id].inv.append(m)
-                                        players[id].gold -= int(j[m])
-                                    elif players[id].gold < int(j[m]):
-                                        mud.send_message(id, "You can't afford that.")
-                    else:
-                        mud.send_message(id, "You need to be near a shop to do that.")
-            except:
-                mud.send_message(id, "Buy what?")
 
-# sell
-        if command == 'sell':
-            try:
-                for i in locations[players[id].room]['interact']:
-                    if 'shop' in i.vname:
-                        target = params
-                        for i in players[id].inv:
-                            if target in i.vname:
-                                players[id].gold += i.value
-                                players[id].inv.remove(i)
-                                mud.send_message(id, "You sell " + i.vname + ' for ' + str(i.value) + ' gold.')
-                    else:
-                        mud.send_message(id, "You can only sell your items at a shop.")
-            except:
-                mud.send_message(id, "Sell what?")
+#sell
 
 #'say' command
         if command == "say":
@@ -1128,8 +949,6 @@ while True:
             mud.send_message(id, ', '.join((i+"(x"+str(jj[i])+")") for i in jj))
             mud.send_message(id, "You have "+str(players[id].gold)+" gold in your coinpurse.")
 
-
-
 # 'look' command
         if command == "look":
 
@@ -1155,7 +974,19 @@ while True:
                                                     ", ".join(rm["exits"])))
             whatsHere()
 
-
+        if command == 'smack':
+            if not players[id].incap:
+                target = params
+                for i in locations[players[id].room]["enemies"]:
+                    if str(target).lower() in str(i.vname).lower():
+                        asyncio.run_coroutine_threadsafe(attackSmack(target), new_loop)
+                        break
+                for i in locations[players[id].room]['players']:
+                    if str(target).lower() in str(i.vname).lower():
+                        asyncio.run_coroutine_threadsafe(attackSmack(target), new_loop)
+                        break
+            elif players[id].incap:
+                mud.send_message(id, "You're incapacitated!")
 #strike
         if command == 'strike':
             try:
@@ -1221,23 +1052,23 @@ while True:
                     except:
                         pass
                     players[id].inv.append(i)
-
-
 #testing
         if command == "gimme":
             if params == "isword":
                 players[id].wielded.append(isword)
                 players[id].lwielded.append(wshield)
                 mud.send_message(id, "aw ye")
-        if command == "levelmyknight":
-            players[id].knight = 5
-        if command == "levelmymage":
-            players[id].mage = 5
+        if command == "healme":
+            players[id].health = 999
+
 #debugging
-        if command == "showme":
-            print(locations[players[id].room]['enemies'])
         if command == "whoami":
             mud.send_message(id, str(players[id].vname))
+        if command == "sendid":
+            mud.send_message(id, str(id))
+            for i in players:
+                mud.send_message(id, str(i))
+                mud.send_message(i, str("worky?"))
 # Map
         if command == "map":
             minilist = list(locations[players[id].room]["maps"])
@@ -1249,223 +1080,19 @@ while True:
                 if minilist[i] == 'c':
                     minilist[i] = '\x1b[3;30;47m' + 'c' + '\x1b[0m'
             mud.send_message(id, ''.join(minilist))
-
-
 # inspect
-        if command == 'inspect':
-            try:
-                item = params
-                for i in players[id].inv or players[id].wielded or players[id].lwielded:
-                    if item in i.vname.lower():
-                        if i.type == 'sharp' or i.type == 'blunt':
-                            mud.send_message(id, i.vname + ':'+ '\n\rDamage: '+ str(i.damage) + "\n\rSpeed: "+ str(i.speed)+ "\n\rRarity: "+ i.rarity+
-                                  "\n\rWeight: "+ str(i.weight)+ "\n\rValue: "+ str(i.value)+ '\n\rType: '+ i.type)
-                            break
-                        if i.type == 'spoils':
-                            mud.send_message(id, i.vname + ':' + '\n\rValue: ' +  str(i.value) + "\n\rWeight: " + str(i.weight))
-                            break
-                        if i.type == 'shield':
-                            mud.send_message(id, i.vname + ':' + '\n\rDefense: ' + str(i.defense) + "\n\rRarity: " + i.rarity)
-                            mud.send_message(id, "we got here")
-                        else:
-                            mud.send_message(id, "You don't have that in your inventory.")
-            except:
-                mud.send_message(id, "Inspect what?")
-
 
 # player prompt, sent as a message
         j = '\x1b[6;30;42m' + str(players[id].health) + '/' + str(players[id].maxHealth) + ">" + '\x1b[0m'
         mud.send_prompt(id, j)
-
-
         scribed = False
         spawn()
+
 # Knight skills
-        if players[id].knight > 1:
-            if command == "shieldbash":
-                if not players[id].incap:
-                    try:
-                        if players[id].lwielded != []:
-                            target = params
-                            for i in locations[players[id].room]["enemies"]:
-                                if target in str(i.vname).lower():
-                                    if i.hostile and not n.is_alive():
-                                        try:
-                                            n.start()
-                                        except RuntimeError:
-                                            n = threading.Thread(target=npcattack)
-                                            n.start()
-                                    if not sb.is_alive():
-                                        try:
-                                            sb = threading.Thread(target=attackShieldbash(target))
-                                            sb.start()
-                                        except RuntimeError:
-                                            sb = threading.Thread(target=attackShieldbash(target))
-                                            sb.start()
-
-                                break
-                        else:
-                            mud.send_message(id, "You don't have a shield equipped.")
-                    except:
-                        mud.send_message(id, "Shield bash what?")
-                else:
-                    mud.send_message(id, "You can't do that right now.")
-
-        if players[id].knight > 2:
-            # Skewer
-            if command == "skewer":
-                if not players[id].incap:
-                    try:
-                        target = params
-                        for i in locations[players[id].room]["enemies"]:
-                            if str(target).lower() in str(i.vname).lower():
-                                i.hostile = True
-                                if i.hostile and not n.is_alive():
-                                    try:
-                                        n.start()
-                                    except RuntimeError:  # occurs if thread is dead
-                                        n = threading.Thread(target=npcattack)  # create new instance if thread is dead
-                                        n.start()  # start thread
-                                if not s.is_alive():
-                                    try:
-                                        s = threading.Thread(target=attackSkewer(target))
-                                        s.start()
-                                    except RuntimeError:  # occurs if thread is dead
-                                        s = threading.Thread(
-                                            target=attackSkewer(target))  # create new instance if thread is dead
-                                        s.start()
-                            break
-                    except:
-                        mud.send_message(id, "Skewer what?")
-        if players[id].knight > 3:
-            if command == "switchgrip":
-                players[id].switched = True
-                mud.send_message(id, "You toss your weapon in the air, snatching it cleanly with an alternate grip.")
-        if players[id].knight > 4:
-            if command == "berserk":
-                mud.send_message(id,
-                                 "Your pupils dilate, you clench your teeth and grip your weapon so hard your hand goes numb.")
-                xe = threading.Thread(target=attackBerserk)
-                xe.start()
 
 # Mage skills
-        if players[id].mage >= 1:
 
-            if command == "cast":
 # Fireball
-                if params.split(' ')[0] == 'fireball':
-                    if not players[id].incap:
-                        ##########################################################################
-                        target = params.split(' ')[1]
-                        for i in locations[players[id].room]["enemies"]:
-                            if str(target).lower() in str(i.vname).lower():
-                                i.hostile = True
-                                if i.hostile and not n.is_alive():
-                                    try:
-                                        n.start()
-                                    except RuntimeError:  # occurs if thread is dead
-                                        n = threading.Thread(
-                                            target=npcattack)  # create new instance if thread is dead
-                                        n.start()  # start thread
-                            if not f.is_alive():
-                                try:
-                                    f = threading.Thread(target=attackFireball(target))
-                                    f.start()
-                                except RuntimeError:  # occurs if thread is dead
-                                    f = threading.Thread(
-                                        target=attackFireball(target))  # create new instance if thread is dead
-                                    f.start()
-                            # break
-                            # iceshard
-                if players[id].mage >= 2:
-                    if params.split(' ')[0] == 'iceshard':
-                        if not players[id].incap:
-                            target = params.split(' ')[1]
-                            for i in locations[players[id].room]["enemies"]:
-                                if str(target).lower() in str(i.vname).lower():
-                                    i.hostile = True
-                                    if i.hostile and not n.is_alive():
-                                        try:
-                                            n.start()
-                                        except RuntimeError:  # occurs if thread is dead
-                                            n = threading.Thread(
-                                                target=npcattack)  # create new instance if thread is dead
-                                            n.start()  # start thread
-                                if not ice.is_alive():
-                                    try:
-                                        ice = threading.Thread(target=attackIceshard(target))
-                                        ice.start()
-                                    except RuntimeError:  # occurs if thread is dead
-                                        ice = threading.Thread(target=attackIceshard(
-                                            target))  # create new instance if thread is dead
-                                        ice.start()
-                                break
-                if players[id].mage >= 3:
-                    if params.split(' ')[0] == 'blizzard':
-                        if not players[id].incap:
-                            for i in locations[players[id].room]['enemies']:
-                                i.hostile = True
-                                if i.hostile and not n.is_alive():
-                                    try:
-                                        n.start()
-                                    except RuntimeError:  # occurs if thread is dead
-                                        n = threading.Thread(
-                                            target=npcattack)  # create new instance if thread is dead
-                                        n.start()  # start thread
-                        if not bliz.is_alive():
-                            try:
-                                bliz = threading.Thread(target=attackBlizzard)
-                                bliz.start()
-                            except RuntimeError:  # occurs if thread is dead
-                                bliz = threading.Thread(
-                                    target=attackBlizzard)  # create new instance if thread is dead
-                                bliz.start()
-                if players[id].mage >= 4:
-                    if params.split(' ')[0] == 'fireblast':
-                        if not players[id].incap:
-                            for i in locations[players[id].room]['enemies']:
-                                if i.hostile and not n.is_alive():
-                                    try:
-                                        n.start()
-                                    except RuntimeError:  # occurs if thread is dead
-                                        n = threading.Thread(
-                                            target=npcattack)  # create new instance if thread is dead
-                                        n.start()  # start thread
-                            if not fs.is_alive():
-                                try:
-                                    fs = threading.Thread(target=attackFireblast)
-                                    fs.start()
-                                except RuntimeError:  # occurs if thread is dead
-                                    fs = threading.Thread(
-                                        target=attackFireblast)  # create new instance if thread is dead
-                                    fs.start()
-                if players[id].mage >= 5:
-                    if params.split(' ')[0] == 'pyroblast':
-                        if not players[id].incap:
-                            target = params.split(' ')[1]
-                            for i in locations[players[id].room]["enemies"]:
-                                if str(target).lower() in str(i.vname).lower():
-                                    if i.hostile and not n.is_alive():
-                                        try:
-                                            n.start()
-                                        except RuntimeError:  # occurs if thread is dead
-                                            n = threading.Thread(
-                                                target=npcattack)  # create new instance if thread is dead
-                                            n.start()  # start thread
-                                if not py.is_alive():
-                                    try:
-                                        py = threading.Thread(target=attackPyroblast(target))
-                                        py.start()
-                                    except RuntimeError:  # occurs if thread is dead
-                                        py = threading.Thread(target=attackPyroblast(
-                                            target))  # create new instance if thread is dead
-                                        py.start()
-                                break
-
-
-
-#comment added to test GIT commit
-
 
         if players[id].health <= 0:
             mud.send_message(id, """\r
