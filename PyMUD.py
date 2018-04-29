@@ -211,7 +211,7 @@ locations = {}
 for i in nz:
     locations.update( {i[0]:
         {
-        "name": 'A dark forest town',
+        "name": '\n\rA dark forest town',
         "description": '',
         "exits": i[2],
         "interact": [],
@@ -364,74 +364,74 @@ helpman = NPCtalker('An elderly man holding a torch',5,3,'An elderly man holding
  )
 
 
-ratmap = """
-dddddddddd
-ddddddd0dd
-dddddd/ddd
-ddd0-*dddd
-dddddddddd
-dddddddddd
-"""
-
-locations.update( {'#100':
-        {
-        "name": 'Inside a rats nest',
-        "description": "You drop down into the dark rats nest. You can't take a single step without crushing the bones of some small unfortunate creature.",
-        "exits": {'U':'#61',"E":'#101'},
-        "interact": [],
-        "items": [],
-        "maps": """
-dddddddddd\r
-ddddddd0dd\r
-dddddd/ddd\r
-ddd*-0dddd\r
-dddddddddd\r
-dddddddddd\r
-""",
-        "enemies": [],
-        "spawn": []
-        }
-                })
-locations.update( {'#101':
-        {
-        "name": 'Inside a rats nest',
-        "description": "You are in a dark rats nest.",
-        "exits": {"NE":"#102","W":"#100"},
-        "interact": [],
-        "items": [],
-        "maps": """
-dddddddddd\r
-ddddddd0dd\r
-dddddd/ddd\r
-ddd0-*dddd\r
-dddddddddd\r
-dddddddddd\r
-""",
-        "enemies": [],
-        "spawn": []
-        }
-                })
-locations.update( {'#102':
-        {
-        "name": 'Inside a rats nest',
-        "description": "You are in a dark rats nest.",
-        "exits": {"SW":"#101"},
-        "interact": [],
-        "items": [],
-        "maps": """
-dddddddddd\r
-ddddddd*dd\r
-dddddd/ddd\r
-ddd0-0dddd\r
-dddddddddd\r
-dddddddddd\r
-""",
-        "enemies": [rat3],
-        "spawn": []
-        }
-                })
-locations["#61"]["exits"]['D'] = '#100'
-locations["#61"]["description"]= "There is an entrance to a rats nest here. You can vaguely make out the sounds of deep, labored breathing."
+# ratmap = """
+# dddddddddd
+# ddddddd0dd
+# dddddd/ddd
+# ddd0-*dddd
+# dddddddddd
+# dddddddddd
+# """
+#
+# locations.update( {'#100':
+#         {
+#         "name": 'Inside a rats nest',
+#         "description": "You drop down into the dark rats nest. You can't take a single step without crushing the bones of some small unfortunate creature.",
+#         "exits": {'U':'#61',"E":'#101'},
+#         "interact": [],
+#         "items": [],
+#         "maps": """
+# dddddddddd\r
+# ddddddd0dd\r
+# dddddd/ddd\r
+# ddd*-0dddd\r
+# dddddddddd\r
+# dddddddddd\r
+# """,
+#         "enemies": [],
+#         "spawn": []
+#         }
+#                 })
+# locations.update( {'#101':
+#         {
+#         "name": 'Inside a rats nest',
+#         "description": "You are in a dark rats nest.",
+#         "exits": {"NE":"#102","W":"#100"},
+#         "interact": [],
+#         "items": [],
+#         "maps": """
+# dddddddddd\r
+# ddddddd0dd\r
+# dddddd/ddd\r
+# ddd0-*dddd\r
+# dddddddddd\r
+# dddddddddd\r
+# """,
+#         "enemies": [],
+#         "spawn": []
+#         }
+#                 })
+# locations.update( {'#102':
+#         {
+#         "name": 'Inside a rats nest',
+#         "description": "You are in a dark rats nest.",
+#         "exits": {"SW":"#101"},
+#         "interact": [],
+#         "items": [],
+#         "maps": """
+# dddddddddd\r
+# ddddddd*dd\r
+# dddddd/ddd\r
+# ddd0-0dddd\r
+# dddddddddd\r
+# dddddddddd\r
+# """,
+#         "enemies": [rat3],
+#         "spawn": []
+#         }
+#                 })
+# locations["#61"]["exits"]['D'] = '#100'
+# locations["#61"]["description"]= "There is an entrance to a rats nest here. You can vaguely make out the sounds of deep, labored breathing."
 
 
 #local location changes
@@ -486,23 +486,54 @@ def spawn():
         print(e)
 
 
+
+#!#
 def deadTest():
     def subwait():
         global players
         for i in locations:
-            if locations[i]["enemies"] != []:
-                for enemy in locations[i]["enemies"]:
-                    if enemy.health <= 0:
-                        enemy.dead = True
-                    if enemy.dead == True:
-                        for j in enemy.loot:
+            xyx = [locations[i]["enemies"], locations[i]['players']]
+            for attacked in itertools.chain(*xyx):
+                if attacked.health <= 0:
+                    attacked.dead = True
+                    try:
+                        mud.send_message(attacked.id, """\r
+                                Y\r
+                                o\r
+                                u\r
+                    \r
+                                d\r
+                                i\r
+                                e\r
+                                d\r
+                                .""")
+                        players[attacked.id].health = 1
+                        players[attacked.id].room = '#35'
+                        mud.send_message(attacked.id, "You respawn at the village shop.")
+                        attacked.dead = False
+                        mud.send_message(attacked.id, '\x1b[6;30;42m' + str(attacked.health) + '/' + str(attacked.maxHealth) + ">" + '\x1b[0m')
+                    except:
+                        print("exception 514")
+
+                if attacked.dead == True:
+                    try:
+                        for j in attacked.loot:
                             locations[i]['items'].append(j)
-                            mud.send_message(id, enemy.vname + ' drops ' + j.vname)
-                            mud.send_message(id, playersprompt)
-                        locations[i]['enemies'].remove(enemy)
-                        players[id].currentExp += enemy.xp
-                        mud.send_message(id, "You've slain "+enemy.vname)
-                        mud.send_message(id, playersprompt)
+                            mud.send_message(id, attacked.vname + ' drops ' + j.vname)
+                        locations[i]['enemies'].remove(attacked)
+                        players[id].currentExp += attacked.xp
+                    except:
+                        print("we excepted at 524")
+                    mud.send_message(id, "You've slain "+attacked.vname+'!')
+                    for mm in locations[players[id].room]["players"]:
+                        if mm != players[id] and mm != attacked:
+                            mud.send_message(mm.id, "{} has slain {}!".format(players[id].vname, attacked.vname))
+                            try:
+                                mud.send_message(mm.id, str(attacked.vname + ' drops ' + j.vname))
+                            except:
+                                print("exception at 532")
+                            mud.send_message(mm.id, '\x1b[6;30;42m' + str(mm.health) + '/' + str(mm.maxHealth) + ">" + '\x1b[0m')
+
 
     for i in range(0,1):
         x = threading.Thread(target=subwait)
@@ -524,81 +555,26 @@ def deadTest():
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-# async def attackSmack(target):
-# #if it's a monster
-#     for i in locations[players[id].room]["enemies"]:
-#         if target in str(i.vname).lower():
-#             players[id].incap = True
-#             if not i.dead:
-#                 mud.send_message(id, "You smack "+ i.vname + ' with your hand! ' + str(i.health))
-#                 i.health -= 10
-#                 # go through every player in the game
-#                 for pid, pl in players.items():
-#                     # if they're in the same room as the player
-#                     if players[pid].room == players[id].room:
-#                         if pid != id:
-#                             # send them a message telling them the player attacked something
-#                             mud.send_message(pid, '{} smacks "{}"'.format(
-#                                 players[id].vname, i.vname))
-#                 deadTest()
-#                 await asyncio.sleep(2)
-#                 players[id].incap = False
-#                 mud.send_message(id, "You regain your balance.")
-#                 mud.send_message(id, playersprompt)
-#         break
-# #if it's a player
-#     for i in locations[players[id].room]['players']:
-#         if str(target).lower() in str(i.vname).lower():
-#             players[id].incap = True
-#             mud.send_message(id, "You smack " + i.vname + '!')
-#             i.health -= 10
-# #need to add a message for other players to see if someone smacked someone
-# #somewhere in here
-# #plz
-#             for p in players:
-#                 if p == i.id:
-#                     mud.send_message(p, "\r"+str(players[id].vname)+" just smacked you, dealing 10 damage!\n\r"+
-#                                      '\x1b[6;30;42m' + str(players[p].health) + '/' + str(
-#                         players[p].maxHealth) + ">" + '\x1b[0m')
-#             deadTest()
-#             await asyncio.sleep(2)
-#             players[id].incap = False
-#             mud.send_message(id, "You regain your balance.")
-#             mud.send_message(id, playersprompt)
-
-
-
-async def attackSmack(target):
+async def attackKill(target):
     attackables = [locations[players[id].room]["enemies"], locations[players[id].room]['players'] ]
     for i in itertools.chain(*attackables):
         if target in str(i.vname).lower():
             players[id].incap = True
             if not i.dead:
-                mud.send_message(id, "You smack "+ i.vname + ' with your hand! ' + str(i.health))
-                i.health -= 10
-                deadTest()
+                mud.send_message(id, "You touch "+ i.vname + '.' + str(i.health))
+                i.health -= 100
+                # deadTest()
                 for p in players:
                     if p == i.id:
                         mud.send_message(p,
-                                         "\r" + str(players[id].vname) + " just smacked you, dealing 10 damage!\n\r" +
+                                         "\r" + str(players[id].vname) + " touches you softly.\n\r" +
                                          '\x1b[6;30;42m' + str(players[p].health) + '/' + str(
                                              players[p].maxHealth) + ">" + '\x1b[0m')
                     if players[p].room == players[id].room:
                         if p != id and p != i.id:
-                            mud.send_message(p, '{} smacks {} with their hand.'.format(players[id].vname, i.vname))
-                await asyncio.sleep(2)
+                            mud.send_message(p, '{} reaches out and touches {} softly.'.format(players[id].vname, i.vname))
+                deadTest()
+                await asyncio.sleep(1)
                 players[id].incap = False
                 mud.send_message(id, "You regain your balance.")
                 mud.send_message(id, playersprompt)
@@ -606,6 +582,33 @@ async def attackSmack(target):
 
 
 
+
+
+
+
+async def attackPunch(target):
+    attackables = [locations[players[id].room]["enemies"], locations[players[id].room]['players'] ]
+    for i in itertools.chain(*attackables):
+        if target in str(i.vname).lower():
+            players[id].incap = True
+            if not i.dead:
+                mud.send_message(id, "You punch "+ i.vname + ' as hard as you can! ' + str(i.health))
+                i.health -= 1
+                deadTest()
+                for p in players:
+                    if p == i.id:
+                        mud.send_message(p,
+                                         "\r" + str(players[id].vname) + " just punched you!\n\r" +
+                                         '\x1b[6;30;42m' + str(players[p].health) + '/' + str(
+                                             players[p].maxHealth) + ">" + '\x1b[0m')
+                    if players[p].room == players[id].room:
+                        if p != id and p != i.id:
+                            mud.send_message(p, '{} punches {}!'.format(players[id].vname, i.vname))
+                await asyncio.sleep(2)
+                players[id].incap = False
+                mud.send_message(id, "You regain your balance.")
+                mud.send_message(id, playersprompt)
+            break
 
 
 
@@ -685,19 +688,28 @@ def whatsHere():
     enemiesHere = locations[players[id].room]["enemies"]
     availableItems = locations[players[id].room]["items"]
     interactHere = locations[players[id].room]["interact"]
+    playersHere = locations[players[id].room]["players"]
     if locations[players[id].room]['description'] != '':
         mud.send_message(id, locations[players[id].room]['description'])
+
     if interactHere != []:
         for i in interactHere:
             mud.send_message(id, "There is "+'\x1b[8;30;47m' + i.vname + '\x1b[0m'+" here.")
+
+
+    if len(playersHere) > 1:
+        mud.send_message(id, "Players here: {}".format(", ".join(playershere)))
+
+
     if enemiesHere != []:
         if len(enemiesHere) > 1:
-            mud.send_message(id, "There are " + str(len(enemiesHere)) + " enemies here:" + ', '.join(
+            mud.send_message(id, "There are enemies here: "+ ', '.join(
                 enemy.vname for enemy in enemiesHere))
         if len(enemiesHere) == 1:
-            mud.send_message(id, "There is an enemy here: " + ''.join(enemy.vname for enemy in enemiesHere))
+            mud.send_message(id, "There is " + ''.join(enemy.vname for enemy in enemiesHere)+' here.')
     if availableItems != []:
         mud.send_message(id, "There are items here: " + ', '.join(item.vname for item in availableItems))
+
 
 #asyncstart
 def start_loop(loop):
@@ -861,7 +873,7 @@ while True:
             # send player his location #
             mud.send_message(id, players[id].room)
             availableExits = ", ".join(locations[players[id].room]["exits"].keys())
-            mud.send_message(id, "Available exits are " + availableExits + " \n".upper())
+            mud.send_message(id, "Available exits are " + availableExits + " ".upper())
             whatsHere()
 #arrival, using 'nb' variable
             rm = locations[players[id].room]
@@ -965,28 +977,25 @@ while True:
                     # add their name to the list
                     playershere.append(players[pid].vname)
 
-            # send player a message containing the list of players in the room
-            if len(playershere) > 1:
-                mud.send_message(id, "Players here: {}".format(
-                                                        ", ".join(playershere)))
+
             # send player a message containing the list of exits from this room
             mud.send_message(id, "Exits are: {}".format(
                                                     ", ".join(rm["exits"])))
             whatsHere()
 
-        if command == 'smack':
+        if command == 'punch':
             if not players[id].incap:
                 target = params
                 for i in locations[players[id].room]["enemies"]:
                     if str(target).lower() in str(i.vname).lower():
-                        asyncio.run_coroutine_threadsafe(attackSmack(target), new_loop)
+                        asyncio.run_coroutine_threadsafe(attackPunch(target), new_loop)
                         break
                 for i in locations[players[id].room]['players']:
                     if str(target).lower() in str(i.vname).lower():
-                        asyncio.run_coroutine_threadsafe(attackSmack(target), new_loop)
+                        asyncio.run_coroutine_threadsafe(attackPunch(target), new_loop)
                         break
             elif players[id].incap:
-                mud.send_message(id, "You're incapacitated!")
+                mud.send_message(id, "You can't do that right now.")
 #strike
         if command == 'strike':
             try:
@@ -1069,6 +1078,21 @@ while True:
             for i in players:
                 mud.send_message(id, str(i))
                 mud.send_message(i, str("worky?"))
+
+        if command == 'kill':
+            if not players[id].incap:
+                target = params
+                for i in locations[players[id].room]["enemies"]:
+                    if str(target).lower() in str(i.vname).lower():
+                        asyncio.run_coroutine_threadsafe(attackKill(target), new_loop)
+                        break
+                for i in locations[players[id].room]['players']:
+                    if str(target).lower() in str(i.vname).lower():
+                        asyncio.run_coroutine_threadsafe(attackKill(target), new_loop)
+                        break
+            elif players[id].incap:
+                mud.send_message(id, "You can't do that right now.")
+
 # Map
         if command == "map":
             minilist = list(locations[players[id].room]["maps"])
@@ -1094,17 +1118,17 @@ while True:
 
 # Fireball
 
-        if players[id].health <= 0:
-            mud.send_message(id, """\r
-            Y\r
-            o\r
-            u\r
-\r
-            d\r
-            i\r
-            e\r
-            d\r
-            .""")
-            players[id].health = 1
-            players[id].room = '#35'
-            mud.send_message(id, "You respawn at the village shop.")
+#         if players[id].health <= 0:
+#             mud.send_message(id, """\r
+#             Y\r
+#             o\r
+#             u\r
+# \r
+#             d\r
+#             i\r
+#             e\r
+#             d\r
+#             .""")
+#             players[id].health = 1
+#             players[id].room = '#35'
+#             mud.send_message(id, "You respawn at the village shop.")
