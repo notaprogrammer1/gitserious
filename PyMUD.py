@@ -519,7 +519,7 @@ def deadTest():
                     try:
                         for j in attacked.loot:
                             locations[i]['items'].append(j)
-                            mud.send_message(id, attacked.vname + ' drops ' + j.vname)
+                            mud.send_message(id, attacked.vname + ' drops ' + j.vname + '.')
                         locations[i]['enemies'].remove(attacked)
                         players[id].currentExp += attacked.xp
                     except:
@@ -529,7 +529,7 @@ def deadTest():
                         if mm != players[id] and mm != attacked:
                             mud.send_message(mm.id, "{} has slain {}!".format(players[id].vname, attacked.vname))
                             try:
-                                mud.send_message(mm.id, str(attacked.vname + ' drops ' + j.vname))
+                                mud.send_message(mm.id, str(attacked.vname + ' drops ' + j.vname + '.'))
                             except:
                                 print("exception at 532")
                             mud.send_message(mm.id, '\x1b[6;30;42m' + str(mm.health) + '/' + str(mm.maxHealth) + ">" + '\x1b[0m')
