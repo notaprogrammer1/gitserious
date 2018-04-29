@@ -1,5 +1,3 @@
-#comment added, to be deleted
-#second comment added, which is to be deleted
 
 import itertools
 import asyncio
@@ -487,7 +485,6 @@ def spawn():
 
 
 
-#!#
 def deadTest():
     def subwait():
         global players
@@ -533,8 +530,6 @@ def deadTest():
                             except:
                                 print("exception at 532")
                             mud.send_message(mm.id, '\x1b[6;30;42m' + str(mm.health) + '/' + str(mm.maxHealth) + ">" + '\x1b[0m')
-
-
     for i in range(0,1):
         x = threading.Thread(target=subwait)
 
@@ -550,34 +545,57 @@ def deadTest():
 
 
 
-
-
-
-
-
-async def attackKill(target):
-    attackables = [locations[players[id].room]["enemies"], locations[players[id].room]['players'] ]
+async def attackKill(target,attacker):
+    attackables = [locations[players[id].room]["enemies"], locations[players[id].room]['players']]
     for i in itertools.chain(*attackables):
         if target in str(i.vname).lower():
-            players[id].incap = True
+            attacker.incap = True
             if not i.dead:
-                mud.send_message(id, "You touch "+ i.vname + '.' + str(i.health))
+                mud.send_message(attacker.id, "You touch "+ i.vname + ' softly with your hand.')
                 i.health -= 100
-                # deadTest()
+                deadTest()
                 for p in players:
                     if p == i.id:
                         mud.send_message(p,
-                                         "\r" + str(players[id].vname) + " touches you softly.\n\r" +
+                                         "\r" + str(attacker.vname) + " touches you softly.\n\r" +
                                          '\x1b[6;30;42m' + str(players[p].health) + '/' + str(
                                              players[p].maxHealth) + ">" + '\x1b[0m')
-                    if players[p].room == players[id].room:
-                        if p != id and p != i.id:
-                            mud.send_message(p, '{} reaches out and touches {} softly.'.format(players[id].vname, i.vname))
-                deadTest()
+
+                        if p != attacker.id and p != i.id:
+                            mud.send_message(p, '{} touches {} softly.'.format(attacker.vname, i.vname))
                 await asyncio.sleep(1)
-                players[id].incap = False
-                mud.send_message(id, "You regain your balance.")
-                mud.send_message(id, playersprompt)
+                attacker.incap = False
+                mud.send_message(attacker.id, "You regain your balance.")
+                mud.send_message(attacker.id, '\x1b[6;30;42m' + str(attacker.health) + '/' + str(
+                attacker.maxHealth) + ">" + '\x1b[0m')
+            break
+
+
+
+
+async def attackPunch(target,attacker):
+    attackables = [locations[players[id].room]["enemies"], locations[players[id].room]['players']]
+    for i in itertools.chain(*attackables):
+        if target in str(i.vname).lower():
+            attacker.incap = True
+            if not i.dead:
+                mud.send_message(attacker.id, "You punch "+ i.vname + ' as hard as you can! ')
+                i.health -= 3
+                deadTest()
+                for p in players:
+                    if p == i.id:
+                        mud.send_message(p,
+                                         "\r" + str(attacker.vname) + " just punched you!\n\r" +
+                                         '\x1b[6;30;42m' + str(players[p].health) + '/' + str(
+                                             players[p].maxHealth) + ">" + '\x1b[0m')
+
+                        if p != attacker.id and p != i.id:
+                            mud.send_message(p, '{} punches {}!'.format(attacker.vname, i.vname))
+                await asyncio.sleep(3)
+                attacker.incap = False
+                mud.send_message(attacker.id, "You regain your balance.")
+                mud.send_message(attacker.id, '\x1b[6;30;42m' + str(attacker.health) + '/' + str(
+                attacker.maxHealth) + ">" + '\x1b[0m')
             break
 
 
@@ -585,81 +603,40 @@ async def attackKill(target):
 
 
 
-
-async def attackPunch(target):
+async def attackStrike(target,attacker):
     attackables = [locations[players[id].room]["enemies"], locations[players[id].room]['players'] ]
     for i in itertools.chain(*attackables):
         if target in str(i.vname).lower():
-            players[id].incap = True
+            attacker.incap = True
             if not i.dead:
-                mud.send_message(id, "You punch "+ i.vname + ' as hard as you can! ' + str(i.health))
-                i.health -= 1
+                mud.send_message(attacker.id, "You strike "+ i.vname + ' with '+attacker.wielded[0].vname+'!')
+                i.health -= attacker.wielded[0].damage
                 deadTest()
                 for p in players:
                     if p == i.id:
                         mud.send_message(p,
-                                         "\r" + str(players[id].vname) + " just punched you!\n\r" +
+                                         "\r" + str(attacker.vname) + " strikes you with {}!\n\r".format(attacker.wielded[0].vname) +
                                          '\x1b[6;30;42m' + str(players[p].health) + '/' + str(
                                              players[p].maxHealth) + ">" + '\x1b[0m')
                     if players[p].room == players[id].room:
                         if p != id and p != i.id:
-                            mud.send_message(p, '{} punches {}!'.format(players[id].vname, i.vname))
-                await asyncio.sleep(2)
-                players[id].incap = False
-                mud.send_message(id, "You regain your balance.")
-                mud.send_message(id, playersprompt)
-            break
+                            mud.send_message(p, '{} strikes {} with {}!'.format(attacker.vname, i.vname,attacker.wielded[0].vname))
+                if attacker.balance - attacker.wielded[0].speed < 0:
+                    await asyncio.sleep(0)
+                    attacker.incap = False
+                    mud.send_message(attacker.id, "You regain your balance.")
+                    mud.send_message(attacker.id, '\x1b[6;30;42m' + str(attacker.health) + '/' + str(
+                        attacker.maxHealth) + ">" + '\x1b[0m')
+                    break
+                else:
+                    await asyncio.sleep(attacker.balance - attacker.wielded[0].speed)
+                    attacker.incap = False
+                    mud.send_message(attacker.id, "You regain your balance.")
+                    mud.send_message(attacker.id, '\x1b[6;30;42m' + str(attacker.health) + '/' + str(
+                        attacker.maxHealth) + ">" + '\x1b[0m')
+                    break
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-async def attackStrike(target):
-    for i in locations[players[id].room]["enemies"]:
-        if target in str(i.vname).lower():
-            players[id].incap = True
-            if not i.dead:
-                mud.send_message(id, "You attack "+ i.vname + '! ' + str(i.health))
-                i.health -= players[id].wielded[0].damage
-                deadTest()
-            if players[id].balance - players[id].wielded[0].speed < 0:
-                await asyncio.sleep(0)
-                players[id].incap = False
-                mud.send_message(id, "You regain your balance.")
-                break
-            else:
-                await asyncio.sleep(players[id].balance - players[id].wielded[0].speed)
-                players[id].incap = False
-                mud.send_message(id, "You regain your balance.")
-                break
-    for i in locations[players[id].room]['players']:
-        if target in str(i.vname).lower():
-            mud.send_message(id, "You attack "+i.vname+'!')
-            i.health -= players[id].wielded[0].damage
-            if players[id].balance - players[id].wielded[0].speed < 0:
-                await asyncio.sleep(0)
-            else:
-                await asyncio.sleep(players[id].balance - players[id].wielded[0].speed)
-            break
 
 
 
@@ -982,37 +959,38 @@ while True:
             mud.send_message(id, "Exits are: {}".format(
                                                     ", ".join(rm["exits"])))
             whatsHere()
-
+#punch
         if command == 'punch':
             if not players[id].incap:
                 target = params
-                for i in locations[players[id].room]["enemies"]:
+                attackables = [locations[players[id].room]["enemies"], locations[players[id].room]['players']]
+                for i in itertools.chain(*attackables):
                     if str(target).lower() in str(i.vname).lower():
-                        asyncio.run_coroutine_threadsafe(attackPunch(target), new_loop)
-                        break
-                for i in locations[players[id].room]['players']:
-                    if str(target).lower() in str(i.vname).lower():
-                        asyncio.run_coroutine_threadsafe(attackPunch(target), new_loop)
+                        asyncio.run_coroutine_threadsafe(attackPunch(target,players[id]), new_loop)
                         break
             elif players[id].incap:
                 mud.send_message(id, "You can't do that right now.")
+
+
 #strike
+
         if command == 'strike':
-            try:
-                if not players[id].incap:
-                    target = params
-                    if players[id].wielded != []:
-                        for i in locations[players[id].room]["enemies"]:
-                            if str(target).lower() in str(i.vname).lower():
-                                i.hostile = True
-                                asyncio.run_coroutine_threadsafe(npcattack(), new_loop)
-                                asyncio.run_coroutine_threadsafe(attackStrike(target),new_loop)
-                    else:
-                        mud.send_message(id, "You're not wielding a weapon!")
-            except RuntimeError as e:
-                mud.send_message(id, "Strike what?")
-                print(e)
-                break
+            if not players[id].incap:
+                target = params
+                if players[id].wielded != []:
+                    for i in locations[players[id].room]["enemies"]:
+                        if str(target).lower() in str(i.vname).lower():
+                            asyncio.run_coroutine_threadsafe(attackStrike(target,players[id]), new_loop)
+                            break
+                    for i in locations[players[id].room]['players']:
+                        if str(target).lower() in str(i.vname).lower():
+                            asyncio.run_coroutine_threadsafe(attackStrike(target,players[id]), new_loop)
+                            break
+                elif players[id].wielded == []:
+                    mud.send_message(id, "You're not wielding a weapon!")
+            elif players[id].incap:
+                mud.send_message(id, "You can't do that right now.")
+
 #who
         if command == "who":
             for i in players:
@@ -1078,17 +1056,18 @@ while True:
             for i in players:
                 mud.send_message(id, str(i))
                 mud.send_message(i, str("worky?"))
+        if command == "reset":
+            for i in players:
+                players[id].incap = False
 
-        if command == 'kill':
+
+        if command == 'touchx':
             if not players[id].incap:
                 target = params
-                for i in locations[players[id].room]["enemies"]:
+                attackables = [locations[players[id].room]["enemies"], locations[players[id].room]['players']]
+                for i in itertools.chain(*attackables):
                     if str(target).lower() in str(i.vname).lower():
-                        asyncio.run_coroutine_threadsafe(attackKill(target), new_loop)
-                        break
-                for i in locations[players[id].room]['players']:
-                    if str(target).lower() in str(i.vname).lower():
-                        asyncio.run_coroutine_threadsafe(attackKill(target), new_loop)
+                        asyncio.run_coroutine_threadsafe(attackKill(target,players[id]), new_loop)
                         break
             elif players[id].incap:
                 mud.send_message(id, "You can't do that right now.")
@@ -1118,17 +1097,4 @@ while True:
 
 # Fireball
 
-#         if players[id].health <= 0:
-#             mud.send_message(id, """\r
-#             Y\r
-#             o\r
-#             u\r
-# \r
-#             d\r
-#             i\r
-#             e\r
-#             d\r
-#             .""")
-#             players[id].health = 1
-#             players[id].room = '#35'
-#             mud.send_message(id, "You respawn at the village shop.")
+
