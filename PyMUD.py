@@ -604,7 +604,6 @@ async def attackStrike(target,attacker):
                     i.hostile = True
                 except:
                     print("616 i.hostile issues")
-                # print(i.vname, i.hostile)
                 i.health -= attacker.wielded[0].damage
                 deadTest()
                 for p in players:
