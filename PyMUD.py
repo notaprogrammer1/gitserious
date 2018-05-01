@@ -262,7 +262,7 @@ class classPlayer(object):
         self.dead = dead
 
 class NPC(object):
-    def __init__(self,vname,health,damage,description, xp, hostile, dead, speed,loot,incap,id,status):
+    def __init__(self,vname,health,damage,description, xp, hostile, dead, speed,loot,incap,id,status,attacking):
         self.vname = vname
         self.health = health
         self.damage = damage
@@ -275,6 +275,7 @@ class NPC(object):
         self.incap = incap
         self.id = id
         self.status = status
+        self.attacking = attacking
 
 class NPCtalker(NPC):
     def __init__(self,vname,health,damage,description, xp, hostile, dead, speed,loot,incap,id,speech):
@@ -347,8 +348,8 @@ smallpurse = Spoils('\x1b[2;33;48m' + 'A small coinpurse' + '\x1b[0m',30,1,rando
 shop1 = Shop("A small shop in the forest",[{ssword:50,sdag:10,wshield:30,kknife:45,isword:15,scimitar:640,obsknife:580}])
 shop2 = Shop("A village mystics shop",[{telegem:100}])
 
-rat3 = NPC('\x1b[2;31;48m' + 'Rat Matriarch' + '\x1b[0m', 14,10,'\x1b[2;31;48m' + 'A huge rat matriarch wearing a golden, jeweled crown' + '\x1b[0m',50,True,False,3,[ccrown],False,8000,'')
-trollking = NPC('\x1b[2;31;48m' + 'The Troll King' + '\x1b[0m',45,20,'The troll king',120,True,False,3,[pearl],True,random.randint(0,9000),'')
+rat3 = NPC('\x1b[2;31;48m' + 'Rat Matriarch' + '\x1b[0m', 14,10,'\x1b[2;31;48m' + 'A huge rat matriarch wearing a golden, jeweled crown' + '\x1b[0m',50,True,False,3,[ccrown],False,8000,'',False)
+trollking = NPC('\x1b[2;31;48m' + 'The Troll King' + '\x1b[0m',45,20,'The troll king',120,True,False,3,[pearl],True,random.randint(0,9000),'',False)
 
 helpman = NPCtalker('An elderly man holding a torch',5,3,'An elderly man holding a torch',20,False,False,3,[rattail],False,random.randint(9000,9999),['The old man lifts his torch higher to see your face in the darkness.',
 """ "Welcome traveler. My name's Hob, 'n I'm the lookout for Naym, the village t'the south." """,
@@ -438,21 +439,21 @@ helpman = NPCtalker('An elderly man holding a torch',5,3,'An elderly man holding
 # locations['#']['interact'].append(shop1)
 # locations['#']['description'] = 'There is a shop here. Type "shop" to bring up its menu.'
 locations['#23']['items'].append(stick)
-locations['#26']['enemies'].append(NPC('\x1b[2;31;48m' + 'A young rat' + '\x1b[0m',6,3,'\x1b[2;31;48m' + 'A hissing juvenile rat' + '\x1b[0m',20,False,False,3,[rattail],False,random.randint(0,9000),''))
+locations['#26']['enemies'].append(NPC('\x1b[2;31;48m' + 'A young rat' + '\x1b[0m',6,3,'\x1b[2;31;48m' + 'A hissing juvenile rat' + '\x1b[0m',20,False,False,3,[rattail],False,random.randint(0,9000),'',False))
 locations['#21']['interact'].append(helpman)
 locations['#35']['interact'].append(shop1)
 locations['#47']['interact'].append(shop2)
 locations['#70']['items'].append(smallpurse)
-locations['#8']['enemies'].append(NPC('\x1b[2;31;48m' + 'A young rat' + '\x1b[0m',25,3,'\x1b[2;31;48m' + 'A hissing juvenile rat' + '\x1b[0m',20,False,False,3,[rattail],False,random.randint(0,9000),''))
-locations['#8']['enemies'].append(NPC('\x1b[2;31;48m' + 'A young rat' + '\x1b[0m',25,3,'\x1b[2;31;48m' + 'A hissing juvenile rat' + '\x1b[0m',20,False,False,3,[rattail],False,random.randint(0,9000),''))
+locations['#8']['enemies'].append(NPC('\x1b[2;31;48m' + 'A young rat' + '\x1b[0m',25,3,'\x1b[2;31;48m' + 'A hissing juvenile rat' + '\x1b[0m',20,False,False,3,[rattail],False,random.randint(0,9000),'',False))
+locations['#8']['enemies'].append(NPC('\x1b[2;31;48m' + 'A young rat' + '\x1b[0m',25,3,'\x1b[2;31;48m' + 'A hissing juvenile rat' + '\x1b[0m',20,False,False,3,[rattail],False,random.randint(0,9000),'',False))
 
 # locations['#13']['enemies'].append(NPC('\x1b[2;31;48m' + 'A young rat' + '\x1b[0m',25,3,'\x1b[2;31;48m' + 'A hissing juvenile rat' + '\x1b[0m',20,False,False,3,[rattail],False,random.randint(0,9000),''))
 
-locations['#7']['enemies'].append(NPC('\x1b[2;31;48m' + 'A huge cave troll' + '\x1b[0m',24,15,'A huge cave troll',120,True,False,3,[pearl],False,random.randint(0,9000),''))
-locations['#3']['enemies'].append(NPC('\x1b[2;31;48m' + 'A huge cave troll' + '\x1b[0m',24,15,'A huge cave troll',120,True,False,3,[pearl],False,random.randint(0,9000),''))
-locations['#5']['enemies'].append(NPC('\x1b[2;31;48m' + 'A huge cave troll' + '\x1b[0m',24,15,'A huge cave troll',120,True,False,3,[pearl],False,random.randint(0,9000),''))
-locations['#9']['enemies'].append(NPC('\x1b[2;31;48m' + 'A huge cave troll' + '\x1b[0m',24,15,'A huge cave troll',120,True,False,3,[pearl],False,random.randint(0,9000),''))
-locations['#11']['enemies'].append(NPC('\x1b[2;31;48m' + 'A huge cave troll' + '\x1b[0m',24,15,'A huge cave troll',120,True,False,3,[pearl],False,random.randint(0,9000),''))
+locations['#7']['enemies'].append(NPC('\x1b[2;31;48m' + 'A huge cave troll' + '\x1b[0m',24,15,'A huge cave troll',120,True,False,3,[pearl],False,random.randint(0,9000),'',False))
+locations['#3']['enemies'].append(NPC('\x1b[2;31;48m' + 'A huge cave troll' + '\x1b[0m',24,15,'A huge cave troll',120,True,False,3,[pearl],False,random.randint(0,9000),'',False))
+locations['#5']['enemies'].append(NPC('\x1b[2;31;48m' + 'A huge cave troll' + '\x1b[0m',24,15,'A huge cave troll',120,True,False,3,[pearl],False,random.randint(0,9000),'',False))
+locations['#9']['enemies'].append(NPC('\x1b[2;31;48m' + 'A huge cave troll' + '\x1b[0m',24,15,'A huge cave troll',120,True,False,3,[pearl],False,random.randint(0,9000),'',False))
+locations['#11']['enemies'].append(NPC('\x1b[2;31;48m' + 'A huge cave troll' + '\x1b[0m',24,15,'A huge cave troll',120,True,False,3,[pearl],False,random.randint(0,9000),'',False))
 locations['#6']['enemies'].append(trollking)
 #def __init__(self,vname,health,damage,description, xp, hostile, dead, speed,loot,incap,id):
 #locations['#8']['enemies'].append(NPC('\x1b[2;31;48m' + 'A young rat' + '\x1b[0m',5,3,'\x1b[2;31;48m' + 'A hissing juvenile rat' + '\x1b[0m',20,False,False,3,[rattail],False,random.randint(0,9000),''))
@@ -473,72 +474,61 @@ def spawn():
                 chance = random.randint(0,100)
                 if len(locations[i]["enemies"]) < 2:
                     if chance >97:
-                        x = NPC('\x1b[2;31;48m' + 'A young rat' + '\x1b[0m',5,3,'\x1b[2;31;48m' + 'A hissing juvenile rat' + '\x1b[0m',20,False,False,3,[rattail],False,random.randint(0,9000),'')
+                        x = NPC('\x1b[2;31;48m' + 'A young rat' + '\x1b[0m',5,3,'\x1b[2;31;48m' + 'A hissing juvenile rat' + '\x1b[0m',20,False,False,3,[rattail],False,random.randint(0,9000),'',False)
                         locations[i]["enemies"].append(x)
                     if chance >99:
-                        y = NPC('\x1b[2;31;48m' + 'An adult rat' + '\x1b[0m', 9,5,'\x1b[2;31;48m' + 'A fully grown adult rat' + '\x1b[0m',30,False,False,3,[rattail],False,random.randint(0,9000),'')
+                        y = NPC('\x1b[2;31;48m' + 'An adult rat' + '\x1b[0m', 9,5,'\x1b[2;31;48m' + 'A fully grown adult rat' + '\x1b[0m',30,False,False,3,[rattail],False,random.randint(0,9000),'',False)
                         locations[i]["enemies"].append(y)
 
 
     except Exception as e:
         print(e)
 
-
-
 def deadTest():
-    def subwait():
-        global players
-        for i in locations:
-            xyx = [locations[i]["enemies"], locations[i]['players']]
-            for attacked in itertools.chain(*xyx):
-                if attacked.health <= 0:
-                    attacked.dead = True
-                    try:
-                        mud.send_message(attacked.id, """\r
-                                Y\r
-                                o\r
-                                u\r
-                    \r
-                                d\r
-                                i\r
-                                e\r
-                                d\r
-                                .""")
-                        players[attacked.id].health = 1
-                        players[attacked.id].room = '#35'
-                        mud.send_message(attacked.id, "You respawn at the village shop.")
-                        attacked.dead = False
-                        mud.send_message(attacked.id, '\x1b[6;30;42m' + str(attacked.health) + '/' + str(attacked.maxHealth) + ">" + '\x1b[0m')
-                    except:
-                        print("exception 514")
+    global players
+    for i in locations:
+        xyx = [locations[i]["enemies"], locations[i]['players']]
+        for attacked in itertools.chain(*xyx):
+            if attacked.health <= 0:
+                attacked.dead = True
+                try:
+                    mud.send_message(attacked.id, """\r
+                            Y\r
+                            o\r
+                            u\r
+                \r
+                            d\r
+                            i\r
+                            e\r
+                            d\r
+                            .""")
+                    players[attacked.id].health = 1
+                    players[attacked.id].room = '#35'
+                    mud.send_message(attacked.id, "You respawn at the village shop.")
+                    attacked.dead = False
+                    locations[i]["players"].remove(attacked)
+                    mud.send_message(attacked.id, '\x1b[6;30;42m' + str(attacked.health) + '/' + str(attacked.maxHealth) + ">" + '\x1b[0m')
+                except:
+                    pass
 
-                if attacked.dead == True:
-                    try:
-                        for j in attacked.loot:
-                            locations[i]['items'].append(j)
-                            mud.send_message(id, attacked.vname + ' drops ' + j.vname + '.')
-                        locations[i]['enemies'].remove(attacked)
-                        players[id].currentExp += attacked.xp
-                    except:
-                        print("we excepted at 524")
-                    mud.send_message(id, "You've slain "+attacked.vname+'!')
-                    for mm in locations[players[id].room]["players"]:
-                        if mm != players[id] and mm != attacked:
-                            mud.send_message(mm.id, "{} has slain {}!".format(players[id].vname, attacked.vname))
-                            try:
-                                mud.send_message(mm.id, str(attacked.vname + ' drops ' + j.vname + '.'))
-                            except:
-                                print("exception at 532")
-                            mud.send_message(mm.id, '\x1b[6;30;42m' + str(mm.health) + '/' + str(mm.maxHealth) + ">" + '\x1b[0m')
-    for i in range(0,1):
-        x = threading.Thread(target=subwait)
-
-        try:
-            x.start()
-        except RuntimeError:
-            x = threading.Thread(target=subwait)
-            x.start()
-
+            if attacked.dead == True:
+                try:
+                    for j in attacked.loot:
+                        locations[i]['items'].append(j)
+                        mud.send_message(id, attacked.vname + ' drops ' + j.vname + '.')
+                    locations[i]['enemies'].remove(attacked)
+                    players[id].currentExp += attacked.xp
+                except:
+                    print("we excepted at 524")
+                mud.send_message(id, "You've slain "+attacked.vname+'!')
+                for mm in locations[players[id].room]["players"]:
+                    if mm != players[id] and mm != attacked:
+                        mud.send_message(mm.id, "{} has slain {}!".format(players[id].vname, attacked.vname))
+                        try:
+                            mud.send_message(mm.id, str(attacked.vname + ' drops ' + j.vname + '.'))
+                        except:
+                            print("exception at 532")
+                        mud.send_message(mm.id, '\x1b[6;30;42m' + str(mm.health) + '/' + str(mm.maxHealth) + ">" + '\x1b[0m')
 
 
 
@@ -580,7 +570,7 @@ async def attackPunch(target,attacker):
             attacker.incap = True
             if not i.dead:
                 mud.send_message(attacker.id, "You punch "+ i.vname + ' as hard as you can! ')
-                i.health -= 3
+                i.health -= 1
                 deadTest()
                 for p in players:
                     if p == i.id:
@@ -610,6 +600,11 @@ async def attackStrike(target,attacker):
             attacker.incap = True
             if not i.dead:
                 mud.send_message(attacker.id, "You strike "+ i.vname + ' with '+attacker.wielded[0].vname+'!')
+                try:
+                    i.hostile = True
+                except:
+                    print("616 i.hostile issues")
+                # print(i.vname, i.hostile)
                 i.health -= attacker.wielded[0].damage
                 deadTest()
                 for p in players:
@@ -640,23 +635,22 @@ async def attackStrike(target,attacker):
 
 
 
-async def npcattack():
+async def npcattack(target):
     global players
-    for npc in locations[players[id].room]["enemies"]:
-        if npc in locations[players[id].room]["enemies"]:
-            while npc.hostile and not npc.dead:
-                if not npc.incap:
-                    for i in locations[players[id].room]['enemies']:
-                        ubertemp = [(i, players[id].room)]
-                        if ubertemp[0][1] == players[id].room and players[id].health > 0 and not i.dead and i.hostile == True:
-                            mud.send_message(id, npc.vname + " attacks!")
-                            if players[id].lwielded != []:
-                                if players[id].lwielded[0].type == 'shield':
-                                    players[id].health -= i.damage - players[id].lwielded[0].defense
-                            else:
-                                players[id].health -= i.damage
+    for enemy in locations[target.room]["enemies"]:
+        if enemy in locations[target.room]["enemies"]:
+            if enemy.attacking == True:
+                break
+            if enemy.hostile:
+                enemy.attacking = True
+                while enemy.hostile and not enemy.dead and target.health >= 0 and enemy in locations[target.room]["enemies"]:
+                    if not enemy.incap:
+                        mud.send_message(target.id, enemy.vname+" attacks!")
+                        target.health -= enemy.damage
+                        deadTest()
+                        mud.send_message(target.id, '\x1b[6;30;42m' + str(target.health) + '/' + str(target.maxHealth) + ">" + '\x1b[0m')
+                        await asyncio.sleep(enemy.speed)
 
-                            await asyncio.sleep(npc.speed)
 
 
 
@@ -675,7 +669,7 @@ def whatsHere():
 
 
     if len(playersHere) > 1:
-        mud.send_message(id, "Players here: {}".format(", ".join(playershere)))
+        mud.send_message(id, "Players here: {}".format(", ".join(p.vname for p in playersHere)))
 
 
     if enemiesHere != []:
@@ -700,10 +694,9 @@ t.start()
 
 #threads
 
-p = threading.Thread(target=attackStrike)
+# p = threading.Thread(target=attackStrike)
 n = threading.Thread(target=npcattack)
 dead = threading.Thread(target=deadTest)
-
 
 
 # stores the players in the game
@@ -766,9 +759,17 @@ while True:
                                  " civilization? \n\rWelcome, {}. \n\r".format(
                                                            players[id].vname)
                              + " ")
+
+
+
 ######################################################################
-##############Changable game loop###################################
+######################### game loop ##################################
 ######################################################################
+
+
+
+
+            asyncio.run_coroutine_threadsafe(npcattack(players[id]), new_loop)
             playersprompt = '\x1b[6;30;42m' + str(players[id].health) + '/' + str(
                 players[id].maxHealth) + ">" + '\x1b[0m'
             availableExits = ", ".join(locations[players[id].room]["exits"].keys())
@@ -780,14 +781,6 @@ while True:
 
 
 
-        for i in locations:
-            for enemies in locations[i]["enemies"]:
-                if enemies.hostile and not n.is_alive():
-                    try:
-                        n.start()
-                    except RuntimeError:  # occurs if thread is dead
-                        n = threading.Thread(target=npcattack)  # create new instance if thread is dead
-                        n.start()  # start thread
 
 
         players[id].recur.append(command + ' ' + params)
@@ -973,18 +966,15 @@ while True:
 
 
 #strike
-
+#!#
         if command == 'strike':
             if not players[id].incap:
                 target = params
                 if players[id].wielded != []:
-                    for i in locations[players[id].room]["enemies"]:
+                    attackables = [locations[players[id].room]["enemies"], locations[players[id].room]['players']]
+                    for i in itertools.chain(*attackables):
                         if str(target).lower() in str(i.vname).lower():
-                            asyncio.run_coroutine_threadsafe(attackStrike(target,players[id]), new_loop)
-                            break
-                    for i in locations[players[id].room]['players']:
-                        if str(target).lower() in str(i.vname).lower():
-                            asyncio.run_coroutine_threadsafe(attackStrike(target,players[id]), new_loop)
+                            asyncio.run_coroutine_threadsafe(attackStrike(target, players[id]), new_loop)
                             break
                 elif players[id].wielded == []:
                     mud.send_message(id, "You're not wielding a weapon!")
@@ -1048,6 +1038,14 @@ while True:
         if command == "healme":
             players[id].health = 999
 
+        if command == "crossbow":
+            if not players[id].incap:
+
+                target = params
+            else:
+                mud.send_message(players[id], "You can't do that right now.")
+
+
 #debugging
         if command == "whoami":
             mud.send_message(id, str(players[id].vname))
@@ -1059,8 +1057,10 @@ while True:
         if command == "reset":
             for i in players:
                 players[id].incap = False
-
-
+        if command == "health":
+            players[id].health = int(params)
+        if command == "dead":
+            print(players[id].dead)
         if command == 'touchx':
             if not players[id].incap:
                 target = params
@@ -1090,6 +1090,7 @@ while True:
         mud.send_prompt(id, j)
         scribed = False
         spawn()
+        asyncio.run_coroutine_threadsafe(npcattack(players[id]), new_loop)
 
 # Knight skills
 
