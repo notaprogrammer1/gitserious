@@ -225,7 +225,7 @@ for i in nz:
 
 ########################################################################################################################
 class classPlayer(object):
-    def __init__(self, id = '', vname = '', room='#8', gold = 20, inv = None, playerLevel = 1, currentExp=0, levelNext = 25, teleport = '', balance=3,
+    def __init__(self, id = '', vname = '', room='#35', gold = 20, inv = None, playerLevel = 1, currentExp=0, levelNext = 25, teleport = '', balance=3,
                  lwielded=None, wielded = None, maxHealth = 50,
                  health = 50, incap = False, skillPoints = 0, knight = 0, mage=0, canBerserk=0, recur = None, switched = False,hostile = None, loot = None, dead = None):
         self.id = id
@@ -532,7 +532,20 @@ def deadTest():
 
 
 
+async def rest(player):
+    player.incap = True
+    mud.send_message(player.id, "You sit down to rest.")
+    while player.health < players[id].maxHealth:
+        await asyncio.sleep(3)
+        player.health += 5
+        if player.health > player.maxHealth:
+            player.health = player.maxHealth
+        mud.send_message(player.id, str(player.health))
+    mud.send_message(player.id, "You stand up, fully recovered.>")
+    mud.send_message(player.id,'\x1b[6;30;42m' + str(player.health) + '/' + str(
+        player.maxHealth) + ">" + '\x1b[0m')
 
+    player.incap = False
 
 
 async def attackKill(target,attacker):
@@ -543,7 +556,7 @@ async def attackKill(target,attacker):
             if not i.dead:
                 mud.send_message(attacker.id, "You touch "+ i.vname + ' softly with your hand.')
                 i.health -= 100
-                deadTest()
+
                 for p in players:
                     if p == i.id:
                         mud.send_message(p,
@@ -553,6 +566,7 @@ async def attackKill(target,attacker):
 
                         if p != attacker.id and p != i.id:
                             mud.send_message(p, '{} touches {} softly.'.format(attacker.vname, i.vname))
+                deadTest()
                 await asyncio.sleep(1)
                 attacker.incap = False
                 mud.send_message(attacker.id, "You regain your balance.")
@@ -767,7 +781,6 @@ while True:
 
 
 
-
             asyncio.run_coroutine_threadsafe(npcattack(players[id]), new_loop)
             playersprompt = '\x1b[6;30;42m' + str(players[id].health) + '/' + str(
                 players[id].maxHealth) + ">" + '\x1b[0m'
@@ -776,10 +789,6 @@ while True:
             mud.send_message(id, locations[players[id].room]['name'])
             mud.send_message(id, availableExits)
             locations[players[id].room]['players'].append(players[id])
-
-
-
-
 
 
         players[id].recur.append(command + ' ' + params)
@@ -895,14 +904,73 @@ while True:
                         players[id].inv.remove(i)
                         locations[players[id].room]['items'].append(i)
                         mud.send_message(id, 'You drop '+ i.vname +  ' to the ground.')
+                        if len(locations[players[id].room]["players"]) > 1:
+                            for j in locations[players[id].room]["players"]:
+                                if j.id != players[id]:
+                                    mud.send_message(j.id,
+                                                     str(players[id].vname) + " lets " + i.vname + " fall to the ground.")
             except:
                 mud.send_message(id, "Drop what?")
 #Shop
+        if command == "shop":
+            templist = []
+            for i in locations[players[id].room]['interact']:
+                if 'shop' in i.vname:
+                    mud.send_message(id, str(i.vname) + ': ')
+                    mud.send_message(id, '#' * 40)
+                    for j in i.inventory[0]:
+                        templist.append(j.vname)
+                    for x in i.inventory:
+                        for y in x.values():
+                            templist.append(y)
+                    items = templist[:len(templist) // 2]
+                    prices = templist[len(templist) // 2:]
 
+                    for i in range(0, len(items)):
+                        mud.send_message(id, str(items[i]) + ' ' + str(prices[i]))
+                mud.send_message(id, '#' * 40)
+                mud.send_message(id, 'Your gold: ' + str(players[id].gold))
+                mud.send_message(id, "#" * 40)
 #buy
-
+        if command == 'buy':
+            try:
+                templist = []
+                target = params
+                for i in locations[players[id].room]['interact']:
+                    if 'shop' in i.vname:
+                        for j in i.inventory:
+                            for m in j.keys():
+                                if target in m.vname.lower():
+                                    if players[id].gold >= int(j[m]):
+                                        mud.send_message(id,
+                                                         "You purchase a " + m.vname + " and slip it into your pack.")
+                                        players[id].inv.append(m)
+                                        players[id].gold -= int(j[m])
+                                    elif players[id].gold < int(j[m]):
+                                        mud.send_message(id, "You can't afford that.")
+                    else:
+                        mud.send_message(id, "You need to be near a shop to do that.")
+            except:
+                mud.send_message(id, "Buy what?")
 #sell
-
+        if command == 'sell':
+            try:
+                for i in locations[players[id].room]['interact']:
+                    if 'shop' in i.vname:
+                        target = params
+                        for i in players[id].inv:
+                            if target in i.vname:
+                                players[id].gold += i.value
+                                players[id].inv.remove(i)
+                                mud.send_message(id, "You sell " + i.vname + ' for ' + str(i.value) + ' gold.')
+                                if len(locations[players[id].room]["players"]) > 1:
+                                    for j in locations[players[id].room]["players"]:
+                                        if j.id != players[id]:
+                                            mud.send_message(j.id, str(players[id].vname) + " sells " +i.vname + " to the shop.")
+                    else:
+                        mud.send_message(id, "You can only sell your items at a shop.")
+            except:
+                mud.send_message(id, "Sell what?")
 #'say' command
         if command == "say":
 
@@ -962,10 +1030,10 @@ while True:
                         break
             elif players[id].incap:
                 mud.send_message(id, "You can't do that right now.")
-
+        if command == "rest":
+            asyncio.run_coroutine_threadsafe(rest(players[id]), new_loop)
 
 #strike
-#!#
         if command == 'strike':
             if not players[id].incap:
                 target = params
@@ -994,6 +1062,13 @@ while True:
                             # while len(wielded)<1:
                                 players[id].wielded.append(i)
                                 mud.send_message(id, "You wield "+i.vname+" in your right hand.")
+                                if len(locations[players[id].room]["players"]) > 1:
+                                    for j in locations[players[id].room]["players"]:
+                                        if j.id != players[id].id:
+                                            print(j.id, players[id])
+                                            mud.send_message(j.id,
+                                                             str(players[
+                                                                     id].vname) + " wields " + i.vname + " in their right hand.")
                                 players[id].inv.remove(i)
                                 break
                             else:
@@ -1004,6 +1079,11 @@ while True:
                                 if len(players[id].lwielded)<1:
                                     players[id].lwielded.append(i)
                                     mud.send_message(id, 'You wield ' + i.vname + " in your left hand.")
+                                    if len(locations[players[id].room]["players"]) > 1:
+                                        for j in locations[players[id].room]["players"]:
+                                            if j.id != players[id]:
+                                                mud.send_message(j.id,
+                                                                 str(players[id].vname) + " wields " + i.vname + " in their left hand.")
                                     players[id].inv.remove(i)
                                     break
                                 else:
@@ -1019,6 +1099,11 @@ while True:
             for i in newlist:
                 if params in i.vname.lower():
                     mud.send_message(id, "You put " + i.vname + " back into your pack.")
+                    if len(locations[players[id].room]["players"]) > 1:
+                        for j in locations[players[id].room]["players"]:
+                            if j.id != players[id].id:
+                                mud.send_message(j.id,
+                                                 str(players[id].vname) + " unwields " + i.vname + " and slips it into his pack.")
                     try:
                         players[id].wielded.remove(i)
                     except:
